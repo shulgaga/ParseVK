@@ -18,19 +18,24 @@ def wall_get():
     return data
 
 def file_writer(data):
+    all_info = []
     for post in data:
-        try:
-            if post['attachments'][0]['type']:
-                img_url = post['attachments'][0]['photo']['sizes'][-1]['url']
-            else:
-                img_url = 'pass'
-        except:
-            pass
-        text = post['text']
-        timestamp = post['date']
-        value = datetime.datetime.fromtimestamp(timestamp)
-        value = value.strftime('%Y-%m-%d %H:%M:%S')
         if post['marked_as_ads'] == 0:
-            return value, text, img_url
-
+            try:
+                if post['attachments'][0]['type']:
+                    img_url = post['attachments'][0]['photo']['sizes'][-1]['url']
+                    all_info.append(img_url)
+                else:
+                    img_url = 'pass'
+            except:
+                pass
+            text = post['text']
+            all_info.append(text)
+            timestamp = post['date']
+            value = datetime.datetime.fromtimestamp(timestamp)
+            value = value.strftime('%Y-%m-%d %H:%M:%S')
+            all_info.append(value)
+        else:
+            pass
+    return all_info
 
