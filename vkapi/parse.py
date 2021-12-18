@@ -2,51 +2,46 @@ import requests
 import datetime
 
 
-# def search_group():
-#     API_KEY = '6849ded36849ded36849ded3066833a5ca668496849ded309f148be98d5788daa04f463'
-#     version = '5.131'
-#     q = str(input('Введите название группы: '))
-#     all_group = []
-#
-#     group = requests.get('https://api.vk.com/method/groups.search',
-#                          params={
-#                              'access_token': API_KEY,
-#                              'v': version,
-#                              'q': q,
-#                              'market': 1,
-#                              'sort': 6,
-#                              'country_id': 1,
-#                              'count': 3
-#                          }
-#                          )
-#     all_group.extend(group)
-#     print(all_group)
-#     return all_group
+def search_group():
+    access_token = '6849ded36849ded36849ded3066833a5ca668496849ded309f148be98d5788daa04f463'
+    version = '5.131'
+    q = 'auto'
+
+    group = requests.get('https://api.vk.com/method/groups.search',
+                         params={
+                             'access_token': access_token,
+                             'v': version,
+                             'q': q,
+                             'type': 'group',
+                             'count': 3,
+                             'sort': 6
+                         }
+                         )
+    print(group)
+
+
+search_group()
 
 
 def search_wall():
-    API_KEY = '6849ded36849ded36849ded3066833a5ca668496849ded309f148be98d5788daa04f463'
+    access_token = '6849ded36849ded36849ded3066833a5ca668496849ded309f148be98d5788daa04f463'
     version = '5.131'
     domain = 'autosale_rus'
-    offset = 0
     query = str(input('Введите нужное слово: '))
-    owners_only = 1
-    all_post = []
     all_info = []
 
     sear = requests.get('https://api.vk.com/method/wall.search',
                         params={
-                            'access_token': API_KEY,
+                            'access_token': access_token,
                             'v': version,
                             'domain': domain,
                             'count': 10,
-                            'offset': offset,
+                            'offset': 0,
                             'query': query,
-                            'owners_only': owners_only
+                            'owners_only': 1
                         }
                         )
     data = sear.json()['response']['items']
-    all_post.extend(data)
 
     for post in data:
         try:
@@ -57,6 +52,7 @@ def search_wall():
                 return 'pass'
         except KeyError:
             print('Нет фото')
+
         text = post['text']
         all_info.append(text)
         timestamp = post['date']
@@ -68,5 +64,4 @@ def search_wall():
     return all_info
 
 
-# html2 = search_group()
 html = search_wall()

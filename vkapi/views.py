@@ -5,4 +5,3 @@ from django.http import HttpResponse
 
 def parse_request(request):
     return HttpResponse(html)
-
