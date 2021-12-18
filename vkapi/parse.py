@@ -1,23 +1,27 @@
 import requests
 import datetime
+import  json
+
+import vkapi.token
 
 
 def search_group():
-    access_token = '6849ded36849ded36849ded3066833a5ca668496849ded309f148be98d5788daa04f463'
+    access_token = vkapi.token.access_token
     version = '5.131'
-    q = 'auto'
-
+    q = str(input('Введите имя групп: '))
     group = requests.get('https://api.vk.com/method/groups.search',
                          params={
                              'access_token': access_token,
                              'v': version,
                              'q': q,
                              'type': 'group',
-                             'count': 3,
-                             'sort': 6
-                         }
-                         )
+                             'count': 1,
+                             'sort': 6,
+                             'market': 1
+                         }).json()['response']['items']
     print(group)
+    d = json.loads(*group)
+    print(d)
 
 
 search_group()
