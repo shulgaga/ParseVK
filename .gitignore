@@ -4,4 +4,4 @@
 *.log
 *db.sqlite3
 venv/
-token.py
+boot/config.py
