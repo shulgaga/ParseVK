@@ -1,30 +1,7 @@
 import requests
 import datetime
 
-import vkapi.token
-
-
-# def search_group():
-#     access_token = vkapi.token.access_token
-#     version = '5.131'
-#     q = str(input('Введите имя групп: '))
-#     all_screen_name_group = []
-#     group = requests.get('https://api.vk.com/method/groups.search',
-#                          params={
-#                              'access_token': access_token,
-#                              'v': version,
-#                              'q': q,
-#                              'type': 'group',
-#                              'count': 3,
-#                              'sort': 6,
-#                              'market': 1
-#                          }).json()['response']['items']
-#     for i in group:
-#         all_screen_name_group.append(i['screen_name'])
-#     print(all_screen_name_group)
-#
-#
-# search_group()
+from 
 
 
 def search_wall():

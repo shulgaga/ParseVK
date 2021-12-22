@@ -1,8 +1,7 @@
-# created by virtualenv automatically
 */__pycache__
 .idea
 *.sqlite3
 *.log
 *db.sqlite3
-/venv/
-vkapi/token.py
+venv/
+token.py
