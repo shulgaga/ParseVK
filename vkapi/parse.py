@@ -1,10 +1,9 @@
 import requests
 import datetime
 
+from config import API_TOKEN, ACCESS_TOKEN
 
 def search_wall():
-    access_token = '4a8bc3a1cef6e1a959d97d532fda7f1a37faee693d6ad7f85691b906b3aedad81adef33cbaaaf433e5feb'
-    api_token = '6849ded36849ded36849ded3066833a5ca668496849ded309f148be98d5788daa04f463'
     version = '5.131'
     q = str(input('Введите имя групп: '))
     query = str(input('Введите нужное слово: '))
@@ -14,7 +13,7 @@ def search_wall():
 
     group = requests.get('https://api.vk.com/method/groups.search',
                          params={
-                             'access_token': access_token,
+                             'access_token': ACCESS_TOKEN,
                              'v': version,
                              'q': q,
                              'country_id': 1,
@@ -30,7 +29,7 @@ def search_wall():
     for i in all_screen_name_group:
         sear = requests.get('https://api.vk.com/method/wall.search',
                             params={
-                                'access_token': api_token,
+                                'access_token': API_TOKEN,
                                 'v': version,
                                 'domain': i,
                                 'count': 10,
