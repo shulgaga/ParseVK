@@ -1,8 +1,7 @@
-*/__pycache__
+*__pycache__/
 .idea
 *.sqlite3
 *.log
 *db.sqlite3
 venv/
-config.py
 .env
