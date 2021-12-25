@@ -1,5 +1,7 @@
 Django~=4.0
 requests~=2.26.0
-logging~=0.4.9.6
-telegram~=0.0.1
 python-dotenv~=0.19.2
+python-telegram-bot
+telegram~=0.0.1
+schedule~=1.1.0
+djangorestframework~=3.13.1

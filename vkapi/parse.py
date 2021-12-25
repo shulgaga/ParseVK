@@ -1,8 +1,5 @@
 import requests
 import datetime
-import schedule
-import time
-from .models import Main
 
 from config import API_TOKEN, ACCESS_TOKEN, VERSION
 
@@ -61,17 +58,3 @@ def search_wall(group_name, search_word):
             pass
 
     return all_info
-
-
-html = search_wall(group_name=str(input('Введите имя групп: ')),
-                   search_word=str(input('Введите нужное слово: ')))
-
-
-
-
-
-
-
-
-
-
