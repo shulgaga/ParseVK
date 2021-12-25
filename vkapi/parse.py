@@ -37,6 +37,7 @@ def search_wall(group_name, search_word):
                                 'owners_only': 1
                             }
                             )
+
         data = sear.json()['response']['items']
 
         for post in data:
@@ -64,6 +65,13 @@ def search_wall(group_name, search_word):
 
 html = search_wall(group_name=str(input('Введите имя групп: ')),
                    search_word=str(input('Введите нужное слово: ')))
+
+
+
+
+
+
+
 
 
 
