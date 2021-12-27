@@ -1,6 +1,6 @@
 import json
-from django.http import HttpResponse
 from rest_framework.decorators import api_view
+from django.http import HttpResponse
 import requests
 import datetime
 
@@ -9,7 +9,6 @@ import datetime
 # import time
 # from parse import html
 
-# from vkapi.parse import search_wall
 from config import API_TOKEN, ACCESS_TOKEN, VERSION
 
 
@@ -37,7 +36,7 @@ def search_wall(group_name, search_word):
                                 'access_token': API_TOKEN,
                                 'v': VERSION,
                                 'domain': i,
-                                'count': 10,
+                                'count': 1,
                                 'offset': 0,
                                 'query': search_word,
                                 'owners_only': 1
@@ -69,10 +68,12 @@ def search_wall(group_name, search_word):
     return all_info
 
 
-@api_view(['GET'])
+# @api_view(['GET'])
 def parse_request(request):
-    json_data = json.loads(request.body)
-    all_info = search_wall(group_name=json_data['group_name'], search_word=json_data['search_word'])
+    all_info = search_wall('купить_машины', 'bmw')
+    # all_info = search_wall(group_name=['купить_машины'], search_word=['bmw'])
+    # json_data = json.loads(request.body)
+    # all_info = search_wall(group_name=json_data['group_name'], search_word=json_data['search_word'])
     return HttpResponse(all_info)
 
 
