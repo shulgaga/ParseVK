@@ -1,25 +1,23 @@
-import json
-from rest_framework.decorators import api_view
 from django.http import HttpResponse
 import requests
 import datetime
+from typing import List
 
 # from .models import Main
 # import schedule
 # import time
-# from parse import html
 
-from config import API_TOKEN, ACCESS_TOKEN, VERSION
+from config import API_TOKEN_VK, ACCESS_TOKEN_VK, VERSION, METHOD_GROUP_SEARCH, METHOD_WALL_SEARCH
 
 
-def search_wall(group_name, search_word):
+def search_wall(group_name: str, search_word: str) -> List[str]:
     all_info = []
     all_screen_name_group = []
     group_name += ' объявления'
 
-    group = requests.get('https://api.vk.com/method/groups.search',
+    group = requests.get(METHOD_GROUP_SEARCH,
                          params={
-                             'access_token': ACCESS_TOKEN,
+                             'access_token': ACCESS_TOKEN_VK,
                              'v': VERSION,
                              'q': group_name,
                              'type': 'group',
@@ -31,9 +29,9 @@ def search_wall(group_name, search_word):
     print(all_screen_name_group)
 
     for i in all_screen_name_group:
-        sear = requests.get('https://api.vk.com/method/wall.search',
+        sear = requests.get(METHOD_WALL_SEARCH,
                             params={
-                                'access_token': API_TOKEN,
+                                'access_token': API_TOKEN_VK,
                                 'v': VERSION,
                                 'domain': i,
                                 'count': 1,
@@ -52,7 +50,7 @@ def search_wall(group_name, search_word):
                         img_url = post['attachments'][0]['photo']['sizes'][-1]['url']
                         all_info.append(img_url)
                     else:
-                        return 'pass'
+                        pass
                 except KeyError:
                     print('Нет фото')
 
@@ -68,23 +66,19 @@ def search_wall(group_name, search_word):
     return all_info
 
 
-# @api_view(['GET'])
 def parse_request(request):
     all_info = search_wall('купить_машины', 'bmw')
-    # all_info = search_wall(group_name=['купить_машины'], search_word=['bmw'])
-    # json_data = json.loads(request.body)
-    # all_info = search_wall(group_name=json_data['group_name'], search_word=json_data['search_word'])
     return HttpResponse(all_info)
 
 
 def following(request):
     pass
-    # data = wall_get()
-    # data.save()
-    # schedule.every(30).minutes.do(following)
-    # while Main.status is True:
-    #     schedule.run_pending()
-    #     time.sleep(1)
-    #     if Main.status is False:
-    #         break
-    # return HttpResponse(data)
+#     data = search_wall()
+#     data.save()
+#     schedule.every(30).minutes.do(following)
+#     while Main.status is True:
+#         schedule.run_pending()
+#         time.sleep(1)
+#         if Main.status is False:
+#             break
+#     return HttpResponse(data)

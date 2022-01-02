@@ -1,9 +1,8 @@
-from telegram.ext import Updater, MessageHandler, \
-    Filters  # Подключаем компонент отвечающий за коммуникацию с сервером проверка
+from telegram.ext import Updater, MessageHandler, Filters  # Подключаем компонент отвечающий за коммуникацию с сервером проверка
 from telegram.ext import CommandHandler  # Подключаем обработчик который реагирует на команды
 from telegram import ReplyKeyboardMarkup  # Импорт кнопок
 
-from config import TELEGRAM_TOKEN
+from config import BOT_API_KEY
 
 import requests
 
@@ -14,12 +13,12 @@ def greet_user(update, context):
 
 
 def parse(update, context):
-    response = requests.get('https://a60d-145-255-9-3.ap.ngrok.io')
+    response = requests.get('https://f11f-145-255-9-3.ap.ngrok.io')
     update.message.reply_text(response.text)
 
 
 def main():
-    mybot = Updater(TELEGRAM_TOKEN, use_context=True)
+    mybot = Updater(BOT_API_KEY, use_context=True)
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start', greet_user))
     dp.add_handler(MessageHandler(Filters.regex('^(Parse оne announcement)$'), parse))
