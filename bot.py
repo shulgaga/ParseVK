@@ -1,10 +1,11 @@
-from telegram.ext import Updater, MessageHandler, Filters  # Подключаем компонент отвечающий за коммуникацию с сервером проверка
+from telegram.ext import Updater, MessageHandler, \
+    Filters  # Подключаем компонент отвечающий за коммуникацию с сервером проверка
 from telegram.ext import CommandHandler  # Подключаем обработчик который реагирует на команды
 from telegram import ReplyKeyboardMarkup  # Импорт кнопок
+import re
+import requests
 
 from config import BOT_API_KEY
-
-import requests
 
 
 def greet_user(update, context):
@@ -13,15 +14,17 @@ def greet_user(update, context):
 
 
 def parse(update, context):
-    response = requests.get('https://f11f-145-255-9-3.ap.ngrok.io')
-    update.message.reply_text(response.text)
+    response = requests.get('https://9630-145-255-9-3.ap.ngrok.io')
+    discription = response.text
+    link_img = re.search(r"https.*", discription).group(0)
+    update.message.reply_photo(photo=link_img, caption=discription.replace(link_img, ""))
 
 
 def main():
     mybot = Updater(BOT_API_KEY, use_context=True)
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start', greet_user))
-    dp.add_handler(MessageHandler(Filters.regex('^(Parse оne announcement)$'), parse))
+    dp.add_handler(MessageHandler(Filters.regex('^Parse оne announcement$'), parse))
     mybot.start_polling()
     mybot.idle()
 

@@ -11,6 +11,11 @@ from config import API_TOKEN_VK, ACCESS_TOKEN_VK, VERSION, METHOD_GROUP_SEARCH, 
 
 
 def search_wall(group_name: str, search_word: str) -> List[str]:
+    """Функция отпраляет запрос по поиску групп в вк.
+    После, циклом, добавляет нужное кол-во screen_name-групп в пустой список.
+    И далее отправляет по каждой найденной группе циклом запрос на нужные нам объявления.
+    Далее всю нужную информацию добавялет в новый пустой список и вот уже этот список нам возвращает.
+    """
     all_info = []
     all_screen_name_group = []
     group_name += ' объявления'
@@ -21,7 +26,7 @@ def search_wall(group_name: str, search_word: str) -> List[str]:
                              'v': VERSION,
                              'q': group_name,
                              'type': 'group',
-                             'count': 3,
+                             'count': 1,
                              'sort': 6,
                          }).json()['response']['items']
     for i in group:
@@ -44,30 +49,23 @@ def search_wall(group_name: str, search_word: str) -> List[str]:
         data = sear.json()['response']['items']
 
         for post in data:
-            if post['marked_as_ads'] == 0:
-                try:
-                    if post['attachments'][0]['type']:
-                        img_url = post['attachments'][0]['photo']['sizes'][-1]['url']
-                        all_info.append(img_url)
-                    else:
-                        pass
-                except KeyError:
-                    print('Нет фото')
-
-                text = post['text']
-                all_info.append(text)
-                timestamp = post['date']
-                value = datetime.datetime.fromtimestamp(timestamp)
-                value = value.strftime('%Y-%m-%d %H:%M:%S')
-                all_info.append(value)
-        else:
-            pass
-
+            text = post['text'] + '\n'
+            all_info.append(text)
+            all_info.append("\n")
+            try:
+                if post['attachments'][0]['type'] not in all_info:
+                    url_photo = post['attachments'][-1]['photo']['sizes'][-1]['url']
+                    all_info.append(url_photo)
+                else:
+                    print('pass')
+            except KeyError:
+                print('Нет фото')
     return all_info
 
 
 def parse_request(request):
-    all_info = search_wall('купить_машины', 'bmw')
+    """Функция задаёт нам искомое слово по группам и по объявлениям"""
+    all_info = search_wall('машины_купить', 'Лада')
     return HttpResponse(all_info)
 
 
