@@ -3,4 +3,4 @@ requests~=2.26.0
 python-dotenv~=0.19.2
 python-telegram-bot~=13.9
 schedule~=1.1.0
-djangorestframework~=3.13.1
+python-telegram-bot~=13.9
