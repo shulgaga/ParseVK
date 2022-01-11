@@ -1,5 +1,4 @@
-from telegram.ext import Updater, MessageHandler, \
-    Filters  # Подключаем компонент отвечающий за коммуникацию с сервером проверка
+from telegram.ext import Updater, MessageHandler, Filters  # Подключаем компонент отвечающий за коммуникацию с сервером проверка
 from telegram.ext import CommandHandler  # Подключаем обработчик который реагирует на команды
 from telegram import ReplyKeyboardMarkup  # Импорт кнопок
 import re
@@ -14,7 +13,7 @@ def greet_user(update, context):
 
 
 def parse(update, context):
-    response = requests.get('https://9630-145-255-9-3.ap.ngrok.io')
+    response = requests.get('https://6ff1-46-191-137-120.ap.ngrok.io')
     discription = response.text
     link_img = re.search(r"https.*", discription).group(0)
     update.message.reply_photo(photo=link_img, caption=discription.replace(link_img, ""))
