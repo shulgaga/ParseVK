@@ -1,11 +1,12 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-class Main(models.Model):
-    auth = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+class Subscription(models.Model):
+
+    tg_user = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.BooleanField(default=False)
-    category = models.CharField(max_length=20, default=False)
-    main_info = models.TextField(default=False)
+    category = models.CharField(max_length=20)
+    main_info = models.TextField()
 
 
     def get_info(self):

@@ -1,24 +1,27 @@
 import requests
 import datetime
-import schedule
-import time
-from .models import Main
+
 
 from config import API_TOKEN, ACCESS_TOKEN, VERSION
 
 
-def search_wall(group_name, search_word):
+def search_wall(group_name: str, search_word: str) -> List[str]:
+    """Функция отпраляет запрос по поиску групп в вк.
+    После, циклом, добавляет нужное кол-во screen_name-групп в пустой список.
+    И далее отправляет по каждой найденной группе циклом запрос на нужные нам объявления.
+    Далее всю нужную информацию добавялет в новый пустой список и вот уже этот список нам возвращает.
+    """
     all_info = []
     all_screen_name_group = []
     group_name += ' объявления'
 
-    group = requests.get('https://api.vk.com/method/groups.search',
+    group = requests.get(METHOD_GROUP_SEARCH,
                          params={
-                             'access_token': ACCESS_TOKEN,
+                             'access_token': ACCESS_TOKEN_VK,
                              'v': VERSION,
                              'q': group_name,
                              'type': 'group',
-                             'count': 3,
+                             'count': 1,
                              'sort': 6,
                          }).json()['response']['items']
     for i in group:
@@ -26,12 +29,12 @@ def search_wall(group_name, search_word):
     print(all_screen_name_group)
 
     for i in all_screen_name_group:
-        sear = requests.get('https://api.vk.com/method/wall.search',
+        sear = requests.get(METHOD_WALL_SEARCH,
                             params={
-                                'access_token': API_TOKEN,
+                                'access_token': API_TOKEN_VK,
                                 'v': VERSION,
                                 'domain': i,
-                                'count': 10,
+                                'count': 1,
                                 'offset': 0,
                                 'query': search_word,
                                 'owners_only': 1
@@ -41,30 +44,21 @@ def search_wall(group_name, search_word):
         data = sear.json()['response']['items']
 
         for post in data:
-            if post['marked_as_ads'] == 0:
-                try:
-                    if post['attachments'][0]['type']:
-                        img_url = post['attachments'][0]['photo']['sizes'][-1]['url']
-                        all_info.append(img_url)
-                    else:
-                        return 'pass'
-                except KeyError:
-                    print('Нет фото')
-
-                text = post['text']
-                all_info.append(text)
-                timestamp = post['date']
-                value = datetime.datetime.fromtimestamp(timestamp)
-                value = value.strftime('%Y-%m-%d %H:%M:%S')
-                all_info.append(value)
-        else:
-            pass
-
+            text = post['text'] + '\n'
+            all_info.append(text)
+            all_info.append("\n")
+            try:
+                if post['attachments'][0]['type'] not in all_info:
+                    url_photo = post['attachments'][-1]['photo']['sizes'][-1]['url']
+                    all_info.append(url_photo)
+                else:
+                    print('pass')
+            except KeyError:
+                print('Нет фото')
     return all_info
 
-
-html = search_wall(group_name=str(input('Введите имя групп: ')),
-                   search_word=str(input('Введите нужное слово: ')))
+if __name__=='__main__':
+        html = search_wall(group_name=str(input('Введите имя групп: ')), search_word=str(input('Введите нужное слово: ')))
 
 
 
