@@ -1,20 +1,10 @@
 import requests
-import datetime
 from typing import List
 from django.contrib.auth.models import User
-from django.shortcuts import render
-#from .parse import html
 from django.http import HttpResponse, HttpRequest
 from .models import Subscription
-from .parse import search_wall
 import json
-import schedule
-import time
-
-# from .models import Main
-# import schedule
-# import time
-
+from apscheduler.schedulers.background import BackgroundScheduler
 from config import API_TOKEN_VK, ACCESS_TOKEN_VK, VERSION, METHOD_GROUP_SEARCH, METHOD_WALL_SEARCH
 
 
@@ -26,15 +16,14 @@ def search_wall(group_name: str, search_word: str) -> List[str]:
     """
     all_info = []
     all_screen_name_group = []
-    group_name += ' объявления'
 
-    group = requests.get(METHOD_GROUP_SEARCH,
+    group = requests.get('https://api.vk.com/method/groups.search',
                          params={
-                             'access_token': ACCESS_TOKEN_VK,
-                             'v': VERSION,
+                             'access_token': '4a8bc3a1cef6e1a959d97d532fda7f1a37faee693d6ad7f85691b906b3aedad81adef33cbaaaf433e5feb',
+                             'v': '5.131',
                              'q': group_name,
                              'type': 'group',
-                             'count': 1,
+                             'count': 2,
                              'sort': 6,
                          }).json()['response']['items']
     for i in group:
@@ -42,12 +31,12 @@ def search_wall(group_name: str, search_word: str) -> List[str]:
     print(all_screen_name_group)
 
     for i in all_screen_name_group:
-        sear = requests.get(METHOD_WALL_SEARCH,
+        sear = requests.get('https://api.vk.com/method/wall.search',
                             params={
-                                'access_token': API_TOKEN_VK,
-                                'v': VERSION,
+                                'access_token': '6849ded36849ded36849ded3066833a5ca668496849ded309f148be98d5788daa04f463',
+                                'v': '5.131',
                                 'domain': i,
-                                'count': 1,
+                                'count': 2,
                                 'offset': 0,
                                 'query': search_word,
                                 'owners_only': 1
@@ -82,7 +71,8 @@ def create_user(request): #create user in DB
     return HttpResponse()
 
 
-def edit_info(request):#update parsing information
+def edit_info(request):
+    ''' EDITING PARSING INFORMATION '''
     data = json.loads(request.body)
     user_name = data.get('user_name')
     user = User.objects.get(username=user_name)
@@ -91,17 +81,15 @@ def edit_info(request):#update parsing information
     return HttpResponse()
 
 
-def following(request):
-    x = Subscription.objects.get(status=True)
-    p = edit_info(request)
-    schedule.every(30).seconds.do(following)
-    while x is True:
-        schedule.run_pending()
-        time.sleep(1)
-        if x is False:
-            break
-    return HttpResponse(x)
+def sch():
+    ''' STARTS SCHEDULER '''
+    scheduler = BackgroundScheduler(timezone='Europe/Moscow')
+    scheduler.add_job(edit_info_off, 'interval', seconds=50)
+    scheduler.start()
 
 
-
+def edit_info_off():
+    user = User.objects.get(username='user')
+    edit = Subscription.objects.filter(tg_user=user).update(main_info=search_wall('auto', 'bmv'))
+    return
 
