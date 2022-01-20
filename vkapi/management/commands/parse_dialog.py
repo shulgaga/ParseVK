@@ -1,7 +1,6 @@
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import CallbackContext, ConversationHandler
-from vkapi.models import Subscription, Profile, Message, Category
-import re
+from vkapi.models import Subscription, Profile
 import requests
 import datetime
 
@@ -45,7 +44,7 @@ def parse_main_keyboard():
 
 def greet_parse(update, context):
     update.message.reply_text('Чтобы найти товар, я задам несколько вопросов',
-                              reply_markup=ReplyKeyboardMarkup([['Хорошо'], ['Назад']]))
+                              reply_markup=ReplyKeyboardMarkup([['Хорошо'], ['Назад']], resize_keyboard=True))
     return 'category'
 
 
@@ -79,7 +78,7 @@ def parse_dialog_keyword(update: Update, context: CallbackContext):
     sub = Subscription.objects.filter(tg_user=p).update(key_word=key)
     update.message.reply_text(
         f'Проверьте внесенные данные: категория - {cc}, ключевое слово - {key}\n Если нашли ошибку нажмите /back ',
-        reply_markup=ReplyKeyboardMarkup([['Далее']]))
+        reply_markup=ReplyKeyboardMarkup([['Далее'], ['Выйти']], resize_keyboard=True))
     return 'main_parse'
 
 
@@ -106,7 +105,7 @@ def main_parse(update, context):
                 'text'] + f"Ссылка в вк:\n{post['wall_url']}")
     update.message.reply_text('Отлично, что дальше? Можете задать другие параметры поиска /back',
                               reply_markup=ReplyKeyboardMarkup(
-                                  [['Подписаться на обновления объявлений этого поиска'], ['Выйти']]))
+                                  [['Подписаться на обновления объявлений этого поиска'], ['Назад']], resize_keyboard=True))
     return 'sub'
 
 

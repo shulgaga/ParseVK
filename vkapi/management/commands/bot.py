@@ -8,24 +8,24 @@ from .parse_dialog import parse_category, parse_dialog_keyword, parse_save_categ
     search_wall, end_conv
 
 
-# def log_errors(f):
-#     def inner(*args, **kwargs):
-#         global e
-#         try:
-#             return f(*args, **kwargs)
-#         except Exception as e:
-#             error_message = f'Произошла ошибка: {e}'
-#             print(error_message)
-#         raise e
-#
-#     return inner
+def log_errors(f):
+    def inner(*args, **kwargs):
+        global e
+        try:
+            return f(*args, **kwargs)
+        except Exception as e:
+            error_message = f'Произошла ошибка: {e}'
+            print(error_message)
+        raise e
+
+    return inner
 
 
 def main_keyboard():
     return ReplyKeyboardMarkup([['Найти товар']], resize_keyboard=True)
 
 
-# @log_errors
+@log_errors
 def greet_user(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     text = update.message.text
