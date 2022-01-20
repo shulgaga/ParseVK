@@ -1,38 +1,39 @@
 from django.core.management.base import BaseCommand
 from telegram import Update, ReplyKeyboardMarkup
-import json
 from datetime import time
-from telegram.ext import CallbackContext, Filters, MessageHandler, Updater, CommandHandler, ConversationHandler, JobQueue, Job
+from telegram.ext import CallbackContext, Filters, MessageHandler, Updater, CommandHandler, ConversationHandler, \
+    JobQueue, Job
 from vkapi.models import Subscription, Profile, Message, Category
-from .parse_dialog import parse_category, parse_dialog_keyword, parse_save_category, main_parse, sub, back, greet_parse, search_wall, end_conv
-from apscheduler.schedulers.background import BackgroundScheduler
+from .parse_dialog import parse_category, parse_dialog_keyword, parse_save_category, main_parse, sub, back, greet_parse, \
+    search_wall, end_conv
 
-def log_errors(f):
 
-    def inner(*args, **kwargs):
-        global e
-        try:
-            return f(*args, **kwargs)
-        except Exception as e:
-            error_message = f'Произошла ошибка: {e}'
-            print(error_message)
-        raise e
-    return inner
+# def log_errors(f):
+#     def inner(*args, **kwargs):
+#         global e
+#         try:
+#             return f(*args, **kwargs)
+#         except Exception as e:
+#             error_message = f'Произошла ошибка: {e}'
+#             print(error_message)
+#         raise e
+#
+#     return inner
 
 
 def main_keyboard():
     return ReplyKeyboardMarkup([['Найти товар']], resize_keyboard=True)
 
 
-@log_errors
+# @log_errors
 def greet_user(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     text = update.message.text
     p, _ = Profile.objects.get_or_create(
-       external_id=chat_id,
-       defaults={
-           'name': update.message.from_user.username,
-       }
+        external_id=chat_id,
+        defaults={
+            'name': update.message.from_user.username,
+        }
     )
     update.message.reply_text(f'Привет, {update.message.from_user.full_name}', reply_markup=main_keyboard())
 
@@ -51,8 +52,8 @@ def watch(context):
         chat_id = i.tg_user.external_id
         Subscription.objects.filter(status=True).update(main_info=response)
         for post in response:
-            context.bot.send_message(chat_id, text='\nДата публикации объявления:\n' + post['date'] + "\n" + "\nОписание объявления:\n" + post['text'] + f"Ссылка в вк:\n{post['wall_url']}")
-
+            context.bot.send_message(chat_id, text='\nДата публикации объявления:\n' + post[
+                'date'] + "\n" + "\nОписание объявления:\n" + post['text'] + f"Ссылка в вк:\n{post['wall_url']}")
 
 
 def podpiska_off(update: Update, context: CallbackContext):
@@ -67,7 +68,7 @@ class Command(BaseCommand):
     help = 'Телеграм-бот'
 
     def handle(self, *args, **options):
-        mybot = Updater('5078755782:AAGp4c2_R7HLzA8DoHAOq7fhXDuTXmy7IVI', use_context=True)
+        mybot = Updater('5061223200:AAGSV8_F0D7sx3OYInzojKjJIFz3RudKDsY', use_context=True)
         dp = mybot.dispatcher
         job_queue = JobQueue()
         job_queue.set_dispatcher(dp)
@@ -88,7 +89,7 @@ class Command(BaseCommand):
                 'save_category': [
                     CommandHandler('back', back),
                     MessageHandler(Filters.text, parse_save_category)
-                                  ],
+                ],
                 'keyword': [
                     CommandHandler('back', back),
                     MessageHandler(Filters.text, parse_dialog_keyword)
@@ -107,8 +108,7 @@ class Command(BaseCommand):
             fallbacks=[]
         )
         dp.add_handler(parse_dialog)
-        #dp.add_handler(MessageHandler(Filters.regex('^Parse оne announcement$'), parse))
+        # dp.add_handler(MessageHandler(Filters.regex('^Parse оne announcement$'), parse))
         mybot.start_polling()
         job_queue.start()
         mybot.idle()
-
