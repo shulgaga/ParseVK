@@ -28,13 +28,12 @@ API_TOKEN_VK = "Сервисный ключ доступа VK_API"
 ACCESS_TOKEN_VK = "Ключ доступа пользователя VK_API"
 VERSION = "5.131" - последняя версия VK_API
 
-METHOD_GROUP_SEARCH = "https://api.vk.com/method/groups.search"
 METHOD_WALL_SEARCH = "https://api.vk.com/method/wall.search"
 ```
 
 ### Запуск
-Чтобы запустить бота, выполните в консоли:
+Чтобы запустить бота и django-server, выполните в консоли:
 ```
 python manage.py runserver
-python bot.py
+python manage.py bot
 ```
