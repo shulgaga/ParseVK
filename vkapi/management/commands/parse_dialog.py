@@ -21,8 +21,7 @@ def search_wall(all_screen_name_group: list, search_word: str):
                                 'count': 2,
                                 'offset': 1,
                                 'query': search_word
-                            }
-                            )
+                            })
         for data in sear.json()['response']['items']:
             text_data = data['text']
             id_data = data['id']
@@ -77,8 +76,8 @@ def parse_dialog_keyword(update: Update, context: CallbackContext):
     cc = c.category.category_name
     sub = Subscription.objects.filter(tg_user=p).update(key_word=key)
     update.message.reply_text(
-        f'Проверьте внесенные данные: категория - {cc}, ключевое слово - {key}\n Если нашли ошибку нажмите /back ',
-        reply_markup=ReplyKeyboardMarkup([['Далее'], ['Выйти']], resize_keyboard=True))
+        f'Проверьте внесенные данные: категория - {cc}, ключевое слово - {key}\nЕсли нашли ошибку можете вернуться назад в меню',
+        reply_markup=ReplyKeyboardMarkup([['Далее'], ['Назад']], resize_keyboard=True))
     return 'main_parse'
 
 
@@ -105,7 +104,8 @@ def main_parse(update, context):
                 'text'] + f"Ссылка в вк:\n{post['wall_url']}")
     update.message.reply_text('Отлично, что дальше? Можете задать другие параметры поиска /back',
                               reply_markup=ReplyKeyboardMarkup(
-                                  [['Подписаться на обновления объявлений этого поиска'], ['Назад']], resize_keyboard=True))
+                                  [['Подписаться на обновления объявлений этого поиска'], ['Назад']],
+                                  resize_keyboard=True))
     return 'sub'
 
 
@@ -128,5 +128,5 @@ def sub(update: Update, context: CallbackContext):
 
 
 def end_conv(update, context):
-    update.message.reply_text('Надеюсь, до свидания.......', reply_markup=parse_main_keyboard())
+    update.message.reply_text('Вернулись назад', reply_markup=parse_main_keyboard())
     return ConversationHandler.END

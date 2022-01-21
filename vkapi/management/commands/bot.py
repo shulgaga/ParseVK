@@ -89,14 +89,17 @@ class Command(BaseCommand):
                 'save_category': [
                     CommandHandler('back', back),
                     MessageHandler(Filters.text, parse_save_category)
+
                 ],
                 'keyword': [
                     CommandHandler('back', back),
-                    MessageHandler(Filters.text, parse_dialog_keyword)
+                    MessageHandler(Filters.text, parse_dialog_keyword),
+                    MessageHandler(Filters.regex('^(Выйти|Назад)$'), end_conv)
+
                 ],
                 'main_parse': [
                     MessageHandler(Filters.regex('^(Далее)$'), main_parse),
-                    CommandHandler('back', back)
+                    MessageHandler(Filters.regex('^(Выйти|Назад)$'), end_conv)
 
                 ],
                 'sub': [
