@@ -1,9 +1,10 @@
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import CallbackContext, ConversationHandler
+from telegram.ext import ConversationHandler
 from vkapi.models import Subscription, Profile
 import requests
 import datetime
 from config import ACCESS_TOKEN_VK, VERSION, METHOD_WALL_SEARCH
+
 
 
 def search_wall(all_screen_name_group: list, search_word: str):
@@ -42,45 +43,53 @@ def search_wall(all_screen_name_group: list, search_word: str):
 
 
 def parse_main_keyboard():
-    return ReplyKeyboardMarkup([['Найти товар']], resize_keyboard=True)
+    return ReplyKeyboardMarkup([['Найти товар'], ['Отменить подписку']], resize_keyboard=True)
 
 
-def greet_parse(update, context):
+def greet_parse(update, _):
+    chat_id = update.message.chat_id
+    defaults = update.message.from_user.username
+    p = Profile.objects.get(external_id=chat_id, name=defaults)
+    Subscription.objects.get_or_create(tg_user=p)
     update.message.reply_text('Чтобы найти товар, я задам несколько вопросов',
                               reply_markup=ReplyKeyboardMarkup([['Хорошо'], ['Назад']], resize_keyboard=True))
     return 'category'
 
 
-def parse_category(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-    defaults = update.message.from_user.username
+def parse_category(update: Update, _):
     update.message.reply_text('Что вы ищете? Выберите категорию',
                               reply_markup=ReplyKeyboardMarkup([['Авто']], resize_keyboard=True,
                                                                one_time_keyboard=True))
     return 'save_category'
 
 
-def parse_save_category(update: Update, context: CallbackContext):
-    chat_id = update.message.chat_id
-    defaults = update.message.from_user.username
-    update.message.reply_text("Введите ключевое слово для поиска")
-    return 'keyword'
-
-
-def parse_dialog_keyword(update: Update, context: CallbackContext):
+def parse_save_category(update: Update, _):
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     key = update.message.text
     p = Profile.objects.get(external_id=chat_id, name=defaults)
+    if key == 'Авто':
+        Subscription.objects.filter(tg_user=p).update(category=1)
+    update.message.reply_text("Введите ключевое слово для поиска")
+    return 'keyword'
+
+
+def parse_dialog_keyword(update: Update, _):
+    chat_id = update.message.chat_id
+    defaults = update.message.from_user.username
+    key = update.message.text
+    p = Profile.objects.get(external_id=chat_id, name=defaults)
+    Subscription.objects.filter(tg_user=p).update(key_word=key)
     c = Subscription.objects.get(tg_user=p)
     cc = c.category.category_name
     update.message.reply_text(
         f'Проверьте внесенные данные: категория - {cc}, ключевое слово - {key}\nЕсли нашли ошибку можете вернуться назад в меню',
-        reply_markup=ReplyKeyboardMarkup([['Далее'], ['Назад']], resize_keyboard=True))
+        reply_markup=ReplyKeyboardMarkup([['Далее'], ['Назад']], resize_keyboard=True)
+    )
     return 'main_parse'
 
 
-def main_parse(update, context):
+def main_parse(update, _):
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     p = Profile.objects.get(external_id=chat_id, name=defaults)
@@ -95,34 +104,40 @@ def main_parse(update, context):
     all_groups.append(cat1)
     all_groups.append(cat2)
     response = search_wall(all_screen_name_group=all_groups, search_word=sub)
-    for post in response:
-        update.message.reply_text(
-            text='\nДата публикации объявления:\n' + post['date'] + "\n" + "\nОписание объявления:\n" + post[
-                'text'] + f"Ссылка в вк:\n{post['wall_url']}")
-    update.message.reply_text('Отлично, что дальше? Можете задать другие параметры поиска /back',
-                              reply_markup=ReplyKeyboardMarkup(
-                                  [['Подписаться на обновления объявлений этого поиска'], ['Назад']],
-                                  resize_keyboard=True))
+    if response == []:
+        update.message.reply_text('Ничего не нашел, проверьте данные и введите еще раз /back',
+                                  reply_markup=ReplyKeyboardMarkup([['Назад']], resize_keyboard=True))
+    else:
+        Subscription.objects.filter(tg_user=p).update(main_info=response)
+        for post in response:
+            update.message.reply_text(
+                text='\nДата публикации объявления:\n' + post['date'] + "\n" + "\nОписание объявления:\n" +
+                     post['text'] + f"Ссылка в вк:\n{post['wall_url']}")
+        update.message.reply_text('Отлично, что дальше? Можете задать другие параметры поиска /back',
+                                  reply_markup=ReplyKeyboardMarkup(
+                                      [['Подписаться на обновления объявлений этого поиска'], ['Назад']],
+                                      resize_keyboard=True))
     return 'sub'
 
 
-def back(update, context):
+def back(update, _):
     update.message.reply_text('Подтвердите действия',
                               reply_markup=ReplyKeyboardMarkup([['Ввести другие параметры поиска'], ['Выйти']]))
     return 'category'
 
 
-def sub(update: Update, context: CallbackContext):
+def sub(update: Update, _):
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     p = Profile.objects.get(external_id=chat_id, name=defaults)
+    Subscription.objects.filter(tg_user=p).update(status=True)
     update.message.reply_text(
-        'Подписка успешно оформлена!\n Каждые полчаса я буду проверять наличие новых объявлений в заданном поиске и присылать вам новые',
+        'Подписка успешно оформлена!\n Каждый день я буду проверять наличие новых объявлений в заданном поиске и присылать вам новые',
         reply_markup=parse_main_keyboard())
     '''Тут запуск шедулера который каждый 30 минут отправляет парсинг в базу и выдает пользователю'''
     return ConversationHandler.END
 
 
-def end_conv(update, context):
+def end_conv(update, _):
     update.message.reply_text('Вернулись назад', reply_markup=parse_main_keyboard())
     return ConversationHandler.END

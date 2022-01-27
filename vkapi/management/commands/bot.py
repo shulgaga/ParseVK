@@ -2,11 +2,18 @@ from django.core.management.base import BaseCommand
 from telegram import Update, ReplyKeyboardMarkup
 from datetime import time
 from telegram.ext import CallbackContext, Filters, MessageHandler, Updater, CommandHandler, ConversationHandler, \
-    JobQueue, Job
-from vkapi.models import Subscription, Profile, Message, Category
+    JobQueue
+from vkapi.models import Subscription, Profile
 from .parse_dialog import parse_category, parse_dialog_keyword, parse_save_category, main_parse, sub, back, greet_parse, \
     search_wall, end_conv
 from config import BOT_API_KEY
+import logging
+
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.INFO,
+    filename='bot.log'
+)
 
 
 def log_errors(f):
@@ -23,7 +30,7 @@ def log_errors(f):
 
 
 def main_keyboard():
-    return ReplyKeyboardMarkup([['Найти товар']], resize_keyboard=True)
+    return ReplyKeyboardMarkup([['Найти товар'], ['Отменить подписку']], resize_keyboard=True)
 
 
 @log_errors
@@ -56,11 +63,16 @@ def watch(context):
                 'date'] + "\n" + "\nОписание объявления:\n" + post['text'] + f"Ссылка в вк:\n{post['wall_url']}")
 
 
-def podpiska_off(update: Update, context: CallbackContext):
+def podpiska_off(update: Update, _):
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     p = Profile.objects.get(external_id=chat_id, name=defaults)
-    update.message.reply_text('Подписка отменена')
+    user_profile = Subscription.objects.get(tg_user=p)
+    if user_profile.status==False:
+        update.message.reply_text('У вас нет подписок!', reply_markup=main_keyboard())
+    else:
+        Subscription.objects.filter(tg_user=p).update(status=False)
+        update.message.reply_text('Подписка отменена')
 
 
 class Command(BaseCommand):
@@ -68,13 +80,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         mybot = Updater(BOT_API_KEY, use_context=True)
+        logging.info('Start bot')
         dp = mybot.dispatcher
         job_queue = JobQueue()
         job_queue.set_dispatcher(dp)
         t = time(12, 30)
         job_queue.run_daily(callback=watch, time=t)
 
-        dp.add_handler(CommandHandler('unsub', podpiska_off))
+        dp.add_handler(MessageHandler(Filters.regex('^(Отменить подписку)$'), podpiska_off))
         dp.add_handler(CommandHandler('start', greet_user))
         parse_dialog = ConversationHandler(
             entry_points=[
@@ -87,7 +100,7 @@ class Command(BaseCommand):
                 ],
                 'save_category': [
                     CommandHandler('back', back),
-                    MessageHandler(Filters.text, parse_save_category)
+                    MessageHandler(Filters.regex('^(Авто)$'), parse_save_category)
 
                 ],
                 'keyword': [
