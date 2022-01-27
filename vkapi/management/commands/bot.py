@@ -29,6 +29,7 @@ def main_keyboard():
 @log_errors
 def greet_user(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
+    text = update.message.text
     p, _ = Profile.objects.get_or_create(
         external_id=chat_id,
         defaults={
@@ -60,6 +61,7 @@ def podpiska_off(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     p = Profile.objects.get(external_id=chat_id, name=defaults)
+    sub = Subscription.objects.filter(tg_user=p).update(status=False)
     update.message.reply_text('Подписка отменена')
 
 
