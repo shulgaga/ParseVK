@@ -8,6 +8,9 @@ from .parse_dialog import parse_category, parse_dialog_keyword, parse_save_categ
     search_wall, end_conv
 import os
 import logging
+from .bot_emoji import USER_EMOJI
+from random import choice
+from emoji import emojize
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -15,6 +18,11 @@ logging.basicConfig(
     filename='bot.log'
 )
 
+
+def smile():
+    smile = choice(USER_EMOJI)
+    smile = emojize(smile, use_aliases=True)
+    return smile
 
 def log_errors(f):
     def inner(*args, **kwargs):
@@ -64,6 +72,7 @@ def watch(context):
 
 
 def podpiska_off(update: Update, _):
+    s = smile()
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     p = Profile.objects.get(external_id=chat_id, name=defaults)
@@ -72,7 +81,7 @@ def podpiska_off(update: Update, _):
         update.message.reply_text('У вас нет подписок!', reply_markup=main_keyboard())
     else:
         Subscription.objects.filter(tg_user=p).update(status=False)
-        update.message.reply_text('Подписка отменена')
+        update.message.reply_text(f'Подписка отменена{s}')
 
 
 class Command(BaseCommand):

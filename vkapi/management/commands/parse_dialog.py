@@ -4,6 +4,15 @@ from vkapi.models import Subscription, Profile
 import requests
 import datetime
 import os
+from .bot_emoji import USER_EMOJI
+from emoji import emojize
+from random import choice
+
+
+def smile():
+    smile = choice(USER_EMOJI)
+    smile = emojize(smile, use_aliases=True)
+    return smile
 
 
 
@@ -47,34 +56,38 @@ def parse_main_keyboard():
 
 
 def greet_parse(update, _):
+    s = smile()
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     p = Profile.objects.get(external_id=chat_id, name=defaults)
     Subscription.objects.get_or_create(tg_user=p)
-    update.message.reply_text('Чтобы найти товар, я задам несколько вопросов',
+    update.message.reply_text(f'Чтобы найти товар, я задам несколько вопросов{s}',
                               reply_markup=ReplyKeyboardMarkup([['Хорошо'], ['Назад']], resize_keyboard=True))
     return 'category'
 
 
 def parse_category(update: Update, _):
-    update.message.reply_text('Что вы ищете? Выберите категорию',
+    s = smile()
+    update.message.reply_text(f'Что вы ищете? Выберите категорию {s}',
                               reply_markup=ReplyKeyboardMarkup([['Авто']], resize_keyboard=True,
                                                                one_time_keyboard=True))
     return 'save_category'
 
 
 def parse_save_category(update: Update, _):
+    s = smile()
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     key = update.message.text
     p = Profile.objects.get(external_id=chat_id, name=defaults)
     if key == 'Авто':
         Subscription.objects.filter(tg_user=p).update(category=1)
-    update.message.reply_text("Введите ключевое слово для поиска")
+    update.message.reply_text(f"Введите ключевое слово для поиска{s}{s}")
     return 'keyword'
 
 
 def parse_dialog_keyword(update: Update, _):
+    s = smile()
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     key = update.message.text
@@ -83,7 +96,7 @@ def parse_dialog_keyword(update: Update, _):
     c = Subscription.objects.get(tg_user=p)
     cc = c.category.category_name
     update.message.reply_text(
-        f'Проверьте внесенные данные: категория - {cc}, ключевое слово - {key}\nЕсли нашли ошибку можете вернуться назад в меню',
+        f'Проверьте внесенные данные: категория - {cc}, ключевое слово - {key}\nЕсли нашли ошибку можете вернуться назад в меню{s}{s}{s}',
         reply_markup=ReplyKeyboardMarkup([['Далее'], ['Назад']], resize_keyboard=True)
     )
     return 'main_parse'
@@ -121,23 +134,26 @@ def main_parse(update, _):
 
 
 def back(update, _):
-    update.message.reply_text('Подтвердите действия',
+    s = smile()
+    update.message.reply_text(f'Подтвердите действия{s}{s}{s}',
                               reply_markup=ReplyKeyboardMarkup([['Ввести другие параметры поиска'], ['Выйти']]))
     return 'category'
 
 
 def sub(update: Update, _):
+    s = smile()
     chat_id = update.message.chat_id
     defaults = update.message.from_user.username
     p = Profile.objects.get(external_id=chat_id, name=defaults)
     Subscription.objects.filter(tg_user=p).update(status=True)
     update.message.reply_text(
-        'Подписка успешно оформлена!\n Каждый день я буду проверять наличие новых объявлений в заданном поиске и присылать вам новые',
+        f'Подписка успешно оформлена!{s}{s}{s}\n Каждый день я буду проверять наличие новых объявлений в заданном поиске и присылать вам новые',
         reply_markup=parse_main_keyboard())
     '''Тут запуск шедулера который каждый 30 минут отправляет парсинг в базу и выдает пользователю'''
     return ConversationHandler.END
 
 
 def end_conv(update, _):
-    update.message.reply_text('Вернулись назад', reply_markup=parse_main_keyboard())
+    s = smile()
+    update.message.reply_text(f'Вернулись назад{s}{s}{s}', reply_markup=parse_main_keyboard())
     return ConversationHandler.END
