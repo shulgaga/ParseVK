@@ -1,6 +1,6 @@
 APScheduler==3.8.1
 asgiref==3.5.0
-cachetools==5.0.0
+cachetools==4.2.2
 certifi==2021.10.8
 charset-normalizer==2.0.10
 dj-database-url==0.5.0
