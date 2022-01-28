@@ -79,7 +79,7 @@ class Command(BaseCommand):
     help = 'Телеграм-бот'
 
     def handle(self, *args, **options):
-        mybot = Updater(BOT_API_KEY, use_context=True)
+        mybot = Updater('5078755782:AAGp4c2_R7HLzA8DoHAOq7fhXDuTXmy7IVI', use_context=True)
         logging.info('Start bot')
         dp = mybot.dispatcher
         job_queue = JobQueue()

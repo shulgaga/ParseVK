@@ -18,10 +18,10 @@ def search_wall(all_screen_name_group: list, search_word: str):
     """
     all_info: list = []
     for i in all_screen_name_group:
-        sear = requests.get(METHOD_WALL_SEARCH,
+        sear = requests.get("https://api.vk.com/method/wall.search",
                             params={
-                                'access_token': ACCESS_TOKEN_VK,
-                                'v': VERSION,
+                                'access_token': "4a8bc3a1cef6e1a959d97d532fda7f1a37faee693d6ad7f85691b906b3aedad81adef33cbaaaf433e5feb",
+                                'v': "5.131",
                                 'domain': i,
                                 'count': 2,
                                 'offset': 1,
