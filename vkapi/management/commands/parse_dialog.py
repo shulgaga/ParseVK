@@ -3,7 +3,7 @@ from telegram.ext import ConversationHandler
 from vkapi.models import Subscription, Profile
 import requests
 import datetime
-from config import ACCESS_TOKEN_VK, VERSION, METHOD_WALL_SEARCH
+import os
 
 
 
@@ -20,7 +20,7 @@ def search_wall(all_screen_name_group: list, search_word: str):
     for i in all_screen_name_group:
         sear = requests.get("https://api.vk.com/method/wall.search",
                             params={
-                                'access_token': "4a8bc3a1cef6e1a959d97d532fda7f1a37faee693d6ad7f85691b906b3aedad81adef33cbaaaf433e5feb",
+                                'access_token': os.getenv('ACCESS_TOKEN_VK'),
                                 'v': "5.131",
                                 'domain': i,
                                 'count': 2,

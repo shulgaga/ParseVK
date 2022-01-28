@@ -6,7 +6,7 @@ from telegram.ext import CallbackContext, Filters, MessageHandler, Updater, Comm
 from vkapi.models import Subscription, Profile
 from .parse_dialog import parse_category, parse_dialog_keyword, parse_save_category, main_parse, sub, back, greet_parse, \
     search_wall, end_conv
-from config import BOT_API_KEY
+import os
 import logging
 
 logging.basicConfig(
@@ -79,7 +79,7 @@ class Command(BaseCommand):
     help = 'Телеграм-бот'
 
     def handle(self, *args, **options):
-        mybot = Updater('5078755782:AAGp4c2_R7HLzA8DoHAOq7fhXDuTXmy7IVI', use_context=True)
+        mybot = Updater(os.getenv('BOT_API_KEY'), use_context=True)
         logging.info('Start bot')
         dp = mybot.dispatcher
         job_queue = JobQueue()
